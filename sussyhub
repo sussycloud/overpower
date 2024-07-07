@@ -1,0 +1,245 @@
+-- Load Orion library
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
+local lib = require(game.ReplicatedStorage.Library)
+
+-- Function to change pets
+local function changePets(fromPet, toPet)
+    -- Validate lib.Directory.Pets
+    if type(lib.Directory.Pets) ~= "table" then
+        warn("lib.Directory.Pets is not a valid table.")
+        return
+    end
+    
+    -- Validate fromPet and toPet existence
+    if not lib.Directory.Pets[fromPet] then
+        warn("From pet '" .. fromPet .. "' not found in lib.Directory.Pets.")
+        return
+    end
+    
+    if not lib.Directory.Pets[toPet] then
+        warn("To pet '" .. toPet .. "' not found in lib.Directory.Pets.")
+        return
+    end
+    
+    -- Clear attributes of fromPet and transfer to toPet
+    for i, v in pairs(lib.Directory.Pets[fromPet]) do
+        lib.Directory.Pets[fromPet][i] = nil
+    end
+    
+    for i, v in pairs(lib.Directory.Pets[toPet]) do
+        lib.Directory.Pets[fromPet][i] = v
+    end
+    
+    print("Changed pets from " .. fromPet .. " to " .. toPet)
+end
+
+-- Function to double gems
+local function doubleGems(amountToDupe)
+    local player = game.Players.LocalPlayer
+    if not player then
+        print("Player not found.")
+        return
+    end
+    
+    local leaderstats = player:FindFirstChild("leaderstats")
+    if not leaderstats then
+        print("Leaderstats not found.")
+        return
+    end
+    
+    local gems = leaderstats:FindFirstChild("Gems") or leaderstats:FindFirstChild("Diamonds") or leaderstats:FindFirstChild("Currency")
+    if not gems then
+        print("Gems not found in leaderstats.")
+        return
+    end
+
+    local currentGems = gems.Value
+    local newGems = currentGems + amountToDupe
+    gems.Value = newGems
+
+    -- Show notification on screen
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Gem Dupe",
+        Text = "Gem dupe successful!",
+        Icon = "rbxassetid://4483345998",
+        Duration = 5
+    })
+
+    print("Gems duped: " .. amountToDupe .. ". New total: " .. newGems)
+end
+
+-- Create main window
+local Window = OrionLib:MakeWindow({
+    Name = "SussyScripHub",
+    HidePremium = false,
+    Introtext = "Dupe",
+    SaveConfig = true,
+    ConfigFolder = "SussyScripHub"
+})
+
+-- Section for Dupe Button
+local DupeTab = Window:MakeTab({
+    Name = "Dupe",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local DupeSection = DupeTab:AddSection({
+    Name = "Dupe Section"
+})
+
+DupeSection:AddTextbox({
+    Name = "Type the name of the pet to dupe",
+    TextDisappear = true,
+    Callback = function(Value)
+        local petName = tostring(Value)
+        print("Pet to dupe set to: " .. petName)
+        -- Insert logic to dupe the specified pet here
+    end
+})
+
+DupeSection:AddButton({
+    Name = "Dupe",
+    Callback = function()
+        local petName = DupeSection:GetTextboxValue("Type the name of the pet to dupe")
+        if petName then
+            -- Example logic: loadstring(game:HttpGet('https://example.com/dupe_script.lua'))()
+            print("Dupe script executed for pet: " .. petName)
+        else
+            print("Please enter a pet name to dupe.")
+        end
+    end    
+})
+
+-- Section for Digsite Button
+local DigsiteTab = Window:MakeTab({
+    Name = "Digsite",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local DigsiteSection = DigsiteTab:AddSection({
+    Name = "Digsite Section"
+})
+
+DigsiteSection:AddButton({
+    Name = "Digsite",
+    Callback = function()
+        loadstring(game:HttpGet('https://rentry.co/cwp9dfqy/raw', true))()
+        print("Digsite script executed!")
+    end    
+})
+
+-- Section for Pet Spawner Button (updated from Titanic Spawner)
+local PetSpawnerTab = Window:MakeTab({
+    Name = "Pet Spawner",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local PetSpawnerSection = PetSpawnerTab:AddSection({
+    Name = "Pet Spawner Section"
+})
+
+local fromPetInput = "Neon Cat"  -- Default value for fromPet
+local toPetInput = "Titanic Monkey"  -- Default value for toPet
+
+PetSpawnerSection:AddTextbox({
+    Name = "From Pet",
+    Default = fromPetInput,
+    TextDisappear = true,
+    Callback = function(Value)
+        fromPetInput = Value
+        print("From Pet set to: " .. fromPetInput)
+    end
+})
+
+PetSpawnerSection:AddTextbox({
+    Name = "To Pet",
+    Default = toPetInput,
+    TextDisappear = true,
+    Callback = function(Value)
+        toPetInput = Value
+        print("To Pet set to: " .. toPetInput)
+    end
+})
+
+PetSpawnerSection:AddButton({
+    Name = "Change!",
+    Callback = function()
+        local fromPet = fromPetInput
+        local toPet = toPetInput
+
+        for i, v in pairs(lib.Directory.Pets[fromPet]) do
+            lib.Directory.Pets[fromPet][i] = nil
+        end
+        for i, v in pairs(lib.Directory.Pets[toPet]) do
+            lib.Directory.Pets[fromPet][i] = v
+        end
+
+        print("Changed pets from " .. fromPet .. " to " .. toPet)
+    end    
+})
+
+-- Section for Gem Dupe Button
+local GemDupeTab = Window:MakeTab({
+    Name = "Gem Dupe",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local GemDupeSection = GemDupeTab:AddSection({
+    Name = "Gem Dupe Section"
+})
+
+local gemAmountInput = "100"  -- Default value
+
+GemDupeSection:AddTextbox({
+    Name = "Number of Gems",
+    Default = gemAmountInput,
+    TextDisappear = true,
+    Callback = function(Value)
+        gemAmountInput = Value
+        print("Gem amount set to: " .. gemAmountInput)
+    end
+})
+
+GemDupeSection:AddButton({
+    Name = "Dupe Gems",
+    Callback = function()
+        local amountToDupe = tonumber(gemAmountInput) or 0
+        doubleGems(amountToDupe)
+    end    
+})
+
+-- Section for Credit Button
+local CreditTab = Window:MakeTab({
+    Name = "Credit",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+local CreditSection = CreditTab:AddSection({
+    Name = "Credit Section"
+})
+
+CreditSection:AddButton({
+    Name = "🔥SussyScrip🔥",
+    Callback = function()
+        -- Copy to clipboard function
+        local function copyToClipboard(text)
+            local clipboard = game:GetService("ClipboardService")
+            clipboard:SetClipboard(text)
+        end
+        
+        -- URL to copy to clipboard
+        local url = "https://www.youtube.com/channel/UCD9D2LIPzLSOJ4af6OaYF2A"
+        
+        -- Copy the URL to clipboard
+        copyToClipboard(url)
+        print("URL copied to clipboard: " .. url)
+    end
+})
+
+-- Initialize the Orion library
+OrionLib:Init()
